@@ -50,6 +50,25 @@
             userDiv.querySelector('.money').textContent = user.money;
         }
 
+        function decreaseMoney(button) {
+            const userDiv = button.parentElement;
+            const name = userDiv.querySelector('span').textContent;
+            const users = getUsersFromLocalStorage();
+            const user = users.find(user => user.name === name);
+            user.money = Math.max(0, user.money - 5); // Ensure money doesn't go below 0
+            saveUsersToLocalStorage(users);
+            userDiv.querySelector('.money').textContent = user.money;
+        }
+
+        function removeUser(button) {
+            const userDiv = button.parentElement;
+            const name = userDiv.querySelector('span').textContent;
+            let users = getUsersFromLocalStorage();
+            users = users.filter(user => user.name !== name);
+            saveUsersToLocalStorage(users);
+            userDiv.remove();
+        }
+
         function getUsersFromLocalStorage() {
             return JSON.parse(localStorage.getItem('users')) || [];
         }
@@ -65,6 +84,8 @@
                 <span>${user.name}</span>
                 <span class="money">${user.money}</span> pesos
                 <button onclick="increaseMoney(this)">Increase Money</button>
+                <button onclick="decreaseMoney(this)">Decrease Money</button>
+                <button onclick="removeUser(this)">Remove User</button>
             `;
             userList.appendChild(userDiv);
         }
