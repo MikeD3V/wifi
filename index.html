@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .user {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>User Management</h1>
+    <form id="userForm">
+        <input type="text" id="userName" placeholder="Enter user name" required>
+        <button type="submit">Add User</button>
+    </form>
+    <div id="userList"></div>
+
+    <script>
+        const userList = document.getElementById('userList');
+        const userForm = document.getElementById('userForm');
+        const userNameInput = document.getElementById('userName');
+
+        userForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            addUser(userNameInput.value);
+            userNameInput.value = '';
+        });
+
+        function addUser(name) {
+            const user = { name: name, money: 0 };
+            const users = getUsersFromLocalStorage();
+            users.push(user);
+            saveUsersToLocalStorage(users);
+            renderUser(user);
+        }
+
+        function increaseMoney(button) {
+            const userDiv = button.parentElement;
+            const name = userDiv.querySelector('span').textContent;
+            const users = getUsersFromLocalStorage();
+            const user = users.find(user => user.name === name);
+            user.money += 5;
+            saveUsersToLocalStorage(users);
+            userDiv.querySelector('.money').textContent = user.money;
+        }
+
+        function getUsersFromLocalStorage() {
+            return JSON.parse(localStorage.getItem('users')) || [];
+        }
+
+        function saveUsersToLocalStorage(users) {
+            localStorage.setItem('users', JSON.stringify(users));
+        }
+
+        function renderUser(user) {
+            const userDiv = document.createElement('div');
+            userDiv.classList.add('user');
+            userDiv.innerHTML = `
+                <span>${user.name}</span>
+                <span class="money">${user.money}</span> pesos
+                <button onclick="increaseMoney(this)">Increase Money</button>
+            `;
+            userList.appendChild(userDiv);
+        }
+
+        function renderUsers() {
+            const users = getUsersFromLocalStorage();
+            users.forEach(user => renderUser(user));
+        }
+
+        setInterval(() => {
+            const users = getUsersFromLocalStorage();
+            users.forEach(user => user.money += 5);
+            saveUsersToLocalStorage(users);
+            userList.innerHTML = '';
+            renderUsers();
+        }, 86400000); // 86400000 ms = 1 day
+
+        renderUsers();
+    </script>
+</body>
+</html>
